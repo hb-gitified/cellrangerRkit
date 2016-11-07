@@ -1,0 +1,22 @@
+Package: cellrangerRkit
+Title: Analysis Tools for 10x Genomics Chromium Single-Cell RNA-seq
+Version: 0.99.0
+Author: 10x Genomics <software@10xgenomics.com>
+Maintainer: 10x Genomics <software@10xgenomics.com>
+Description: Provides tools for exploring the data output of 10x Genomics'
+    Single Cell RNA-seq product.
+License: AGPL
+URL: http://software.10xgenomics.com/docs/license, http://software.
+        10xgenomics.com/single-cell/pipelines/latest/rkit
+biocViews: DataImport, Clustering, GeneExpression, RNASeq, Sequencing,
+        Software, Visualization
+LazyData: true
+Depends: R (>= 3.1), Matrix (>= 1.2), Biobase, RColorBrewer, ggplot2,
+        bit64, Rmisc
+Imports: rhdf5 (>= 2.14.0), data.table, Rtsne, pheatmap, irlba
+Suggests: testthat, knitr
+Collate: 'analysis.r' 'class_gene_bc_matrix.r' 'constants.r' 'data.r'
+        'help.r' 'normalize.r' 'plot.r' 'util.r'
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1
+Packaged: 2016-08-05 15:52:26 UTC; jason
