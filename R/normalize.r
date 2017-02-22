@@ -21,7 +21,7 @@ normalize_barcode_sums_to_median <- function(gbm) {
   return(newGeneBCMatrix(new_matrix, fData(gbm), pData(gbm), template=gbm))
 }
 
-#' Take the element-wise log(1+count) of a gene-barcode matrix while maintaining sparsity
+#' Take the element-wise logarithm of a gene-barcode matrix while maintaining sparsity
 #'
 #' @param gbm a GeneBCMatrix to log
 #' @param base base of logarithm to use
@@ -32,6 +32,6 @@ normalize_barcode_sums_to_median <- function(gbm) {
 #'
 log_gene_bc_matrix <- function(gbm, base=2) {
   x <- uniqTsparse(as(exprs(gbm), 'dgTMatrix'))
-  slot(x, 'x') <- log(1+slot(x, 'x'), base=base)
+  slot(x, 'x') <- log(1 + slot(x, 'x'), base=base)
   return(newGeneBCMatrix(x, fData(gbm), pData(gbm), template=gbm))
 }

@@ -32,3 +32,11 @@ test_that("can load secondary analysis results", {
   load_cellranger_analysis_results(pipestance_path)
 })
 
+# Try loading H5
+pipestance_path_h5 <- system.file("extdata", "test_pipestance_h5", package="cellrangerRkit")
+
+filt_gbm_h5 <- load_cellranger_matrix_h5(pipestance_path_h5, barcode_filtered=T)
+test_that("filtered matrix has correct dimensions", {
+  expect_equal(nrow(filt_gbm_h5), 343)
+  expect_equal(ncol(filt_gbm_h5), 34)
+})

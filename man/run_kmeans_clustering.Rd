@@ -4,12 +4,14 @@
 \alias{run_kmeans_clustering}
 \title{Run k-means clustering}
 \usage{
-run_kmeans_clustering(pca, k, ...)
+run_kmeans_clustering(pca, k, n_pcs = NULL, ...)
 }
 \arguments{
 \item{pca}{A PCA result from run_pca()}
 
 \item{k}{number of clusters}
+
+\item{n_pcs}{The number of top pca components to use (default is to use all pcs)}
 
 \item{...}{parameters to pass to kmeans}
 }

@@ -11,243 +11,6 @@
 #' @name bind variables to fix data.table errors when packaging
 globalVariables(c("reads", "barcode", "gene", "gem_group"))
 
-#' Load data from the 10x Genomics Cell Ranger pipeline
-#'
-#' @param pipestance_path Path to the output directory produced by Cell Ranger
-#' @param genome The desired genome (e.g., 'hg19' or 'mm10')
-#' @param barcode_filtered Load only the cell-containing barcodes
-#' @return A GeneBCMatrix sparse matrix where rows are genes and columns are cell-barcodes
-#' @export
-#' @import Matrix
-#' @examples
-#' \dontrun{
-#' # Load from a Cell Ranger output directory
-#' gene_bc_matrix <- load_cellranger_matrix("/home/user/cellranger_output")
-#' }
-load_cellranger_matrix <- function(pipestance_path=NULL, genome=NULL, barcode_filtered=TRUE) {
-  if (is.null(pipestance_path)) {
-    stop("Must specify either 'pipestance_path")
-  }
-
-  # Load the summary csv
-  summary <- NULL
-  if (!is.null(pipestance_path)) {
-    if (file.exists(get_summary_csv_path(pipestance_path))) {
-      summary <- load_cellranger_summary(pipestance_path)
-    } else {
-      warning("Could not find summary csv\n")
-    }
-  }
-
-  # Find the path to the matrix
-  genomes <- get_genomes_in_matrix_dir(pipestance_path, barcode_filtered)
-
-  if (is.null(genome)) {
-    if (length(genomes) == 1) {
-      genome <- genomes[1]
-    } else {
-      stop(sprintf("Multiple genomes found; please specify one. Genomes present: %s",
-                   paste(genomes, collapse=", ")))
-    }
-  } else if (!(genome %in% genomes)) {
-    stop(sprintf("Could not find specified genome '%s'. Genomes present: %s",
-                 genome,
-                 paste(genomes, collapse=", ")))
-  }
-
-  matrix_path <- get_matrix_path(pipestance_path, barcode_filtered, genome)
-  mat_fn <- file.path(matrix_path, "matrix.mtx")
-
-  # Load gene info
-  gene_fn <- file.path(matrix_path, "genes.tsv")
-  gene_info <- NULL
-  gene_symbols <- NA_character_
-  if (file.exists(gene_fn)) {
-    gene_info <- read.delim(gene_fn, stringsAsFactors=FALSE, sep="\t", header=FALSE)
-    gene_symbols = gene_info
-  } else {
-    warning(sprintf("Could not find gene file %s alongside matrix file ", gene_fn, mat_fn))
-  }
-
-  # Load barcode info
-  barcode_fn <- file.path(matrix_path, "barcodes.tsv")
-  barcodes <- NULL
-  if (file.exists(barcode_fn)) {
-    barcodes <- read.delim(barcode_fn, stringsAsFactors=FALSE, sep="\t", header=FALSE)
-  } else {
-    warning(sprintf("Could not find barcode file %s alongside matrix file ", barcode_fn, mat_fn))
-  }
-
-  # Load matrix
-  mat <- readMM(mat_fn)
-  rownames(mat) <- gene_info[,1]
-  colnames(mat) <- barcodes[,1]
-
-  pd = data.frame(id=barcodes[,1], row.names=barcodes[,1])
-  colnames(pd) = c("barcode")
-
-  row.names(gene_symbols) = gene_symbols[, 1]
-  colnames(gene_symbols) = c("id", "symbol")
-
-  # Build GeneBCMatrix object
-  res <- newGeneBCMatrix(mat=mat, fd=gene_symbols, pd=pd)
-  res@barcode_filtered <- barcode_filtered
-  res@subsampled <- FALSE
-
-  if (!is.null(summary)) {
-    res@summary <- summary
-  }
-  if (!is.null(pipestance_path)) {
-    res@pipestance_path <- pipestance_path
-  }
-
-  return(res)
-}
-
-
-#' Get path to matrices in Cell Ranger output
-#'
-#' @param pipestance_path Path to the output directory produced by the Cell Ranger pipeline
-#' @param barcode_filtered If true, get the path to the barcode filtered matrices; else to the raw filtered matrices
-#' @return The path to the matrices directory
-get_matrix_dir_path <- function(pipestance_path, barcode_filtered) {
-  file.path(pipestance_path, 'outs',
-            ifelse(barcode_filtered, 'filtered_gene_bc_matrices', 'raw_gene_bc_matrices'))
-}
-
-#' Get path to a genome matrix in Cell Ranger output
-#'
-#' @param pipestance_path Path to the output directory produced by the Cell Ranger pipeline
-#' @param barcode_filtered If true, get the path to the barcode filtered matrix; else to the raw filtered matrix
-#' @param genome The desired genome (e.g., 'hg19' or 'mm10')
-#' @return The path to a matrix directory
-get_matrix_path <- function(pipestance_path, barcode_filtered, genome) {
-  file.path(get_matrix_dir_path(pipestance_path, barcode_filtered), genome)
-}
-
-#' Get list of genomes in Cell Ranger output
-#'
-#' @param pipestance_path Path to the output directory produced by the Cell Ranger pipeline
-#' @param barcode_filtered Path to filtered matrix if true, otherwise raw matrix
-#' @return A character vector of the genomes found
-get_genomes_in_matrix_dir <- function(pipestance_path, barcode_filtered) {
-  dir(get_matrix_dir_path(pipestance_path, barcode_filtered))
-}
-
-#' Get summary csv in Cell Ranger output
-#'
-#' @param pipestance_path Path to the output directory produced by the Cell Ranger pipeline
-#' @return Path to the summary CSV
-get_summary_csv_path <- function(pipestance_path) {
-  file.path(pipestance_path, 'outs', 'metrics_summary.csv')
-}
-
-#' Load metrics summary from the Cell Ranger pipeline
-#'
-#' @param pipestance_path Path to the output directory produced by the Cell Ranger pipeline
-#' @return The summary csv in a data frame
-#' @examples
-#' \dontrun{
-#' single_cell_metrics <- load_cellranger_summary("/home/user/cellranger_output")
-#' }
-load_cellranger_summary <- function(pipestance_path) {
-  summary_path <- get_summary_csv_path(pipestance_path)
-  read.csv(summary_path, as.is=TRUE, header=TRUE)
-}
-
-#' Load molecule info h5 file from the Cell Ranger pipeline
-#'
-#' @param gbm GeneBCMatrix object to load into
-#' @param barcode_len Length of cell barcode in nucleotides
-#'
-#' @import rhdf5
-#' @import data.table
-#' @export
-#' @return A GeneBCMatrix object containing the loaded molecule info
-#' @examples
-#' \dontrun{
-#' new_reads_per_cell = 10000 # downsampling read depth per cell to 10000
-#' gbm1 = load_molecule_info(gbm1)
-#' gbm1_subsampled = subsample_gene_bc_matrix(gbm1, 10000)
-#'
-#' # Note molecule info stored as gbm1@molecule_info
-#' }
-load_molecule_info <- function(gbm) {
-  if(! "bit64" %in% installed.packages())
-    stop("Suggested package bit64 is required to use load_molecule_info. Please install and try again.")
-
-  h5_path <- file.path(gbm@pipestance_path, "outs", "molecule_info.h5")
-  required_cols <- c("barcode", "gem_group", "gene", "umi", "reads")
-  cols <- h5ls(h5_path)$name
-  for (col in required_cols) {
-    if (!(col %in% cols)) {
-      stop(sprintf("Missing '%s' column in molecule info h5", col))
-    }
-  }
-  col_data <- lapply(required_cols, function(col) {
-    h5read(h5_path, col, bit64conversion='bit64')
-  })
-  names(col_data) <- required_cols
-
-  dt <- as.data.table(data.frame(col_data, stringsAsFactors=FALSE))
-  dt <- dt[reads > 0]
-
-  # Aggregate reads per-molecule
-  setkeyv(dt, c("barcode", "gem_group", "gene", "umi"))
-  dt <- dt[, j=list(reads=sum(reads)), by=c('barcode', 'gem_group', 'gene', 'umi')]
-
-  gbm@molecule_info <- dt
-  return(gbm)
-}
-
-#' Format a barcode string
-#'
-#' @param barcode_seq Cell barcode sequence
-#' @param gem_group Gem group number
-#' @return A formatted barcode string
-format_barcode_string <- function(barcode_seq, gem_group) {
-  sprintf("%s-%d", barcode_seq, gem_group)
-}
-
-#' Extract the cell barcode sequence from one or more barcode strings
-#'
-#' @param barcode_str Formatted cell barcode sequence
-#' @return A cell barcode sequence string
-get_barcode_sequence <- function(barcode_str) {
-  do.call(rbind, strsplit(barcode_str, '-'))[,1]
-}
-
-#' Extract the gem group from one or more barcode strings
-#'
-#' @param barcode_str Formatted cell barcode sequence
-#' @return A gem group integer
-get_gem_group <- function(barcode_str) {
-  as.integer(do.call(rbind, strsplit(barcode_str, '-'))[,2])
-}
-
-#' Compress a vector of sequences into 2-bit representation
-#'
-#' Compress a vector of sequences into integer64 objects containing
-#' a 2-bit representation. Ns are not allowed
-#' @param seqs Vector of nucleotide sequences to compress
-#' @return A vector of integer64 objects
-compress_sequences <- function(seqs) {
-  if (any(grepl('[^ACGT]', seqs))) {
-    stop("At least one sequence contains Ns")
-  }
-  nuc_to_int <- as.integer(0:3)
-  names(nuc_to_int) <- c('A', 'C', 'G', 'T')
-
-  chars <- do.call(rbind, strsplit(seqs, ''))
-  nuc_ints <- matrix(nuc_to_int[chars], nrow=length(seqs))
-  result <- integer64(length(seqs))
-  for(i in 1:ncol(nuc_ints)) {
-    result <- result * as.integer(4) + nuc_ints[,i]
-  }
-
-  result
-}
-
 #' Subsample a matrix to a given sequencing depth
 #'
 #' Subsample a matrix to a given sequencing depth so it is comparable to matrices from other samples
@@ -354,6 +117,7 @@ subsample_gene_bc_matrix <- function(gbm, target_reads_per_cell,
 #' equalize_gbms(list(gbm1,gbm2))
 #' }
 equalize_gbms <- function(gbm_list) {
+  warning("This method of normalizing matrices is deprecated.\nPlease use the `cellranger aggr` pipeline (new in cellranger 1.2.0), which can combine arbitrary gene-barcode matrices\nand produce a combined, depth-normalized matrix.")
   n_gbms <- length(gbm_list)
   mean_reads <- sapply(gbm_list,get_mean_mapped_reads_per_cell)
   cat('Mean reads per cell before subsampling:\n')
@@ -459,6 +223,17 @@ concatenate_gene_bc_matrices <- function(gbms) {
   return(result)
 }
 
+
+#' Format a barcode string
+#'
+#' @param barcode_seq Cell barcode sequence
+#' @param gem_group Gem group number
+#' @return A formatted barcode string
+format_barcode_string <- function(barcode_seq, gem_group) {
+  sprintf("%s-%d", barcode_seq, gem_group)
+}
+
+
 #' Read value from metrics CSV
 #'
 #' @param x String to convert
@@ -494,9 +269,8 @@ get_metric <- function(gbm, metric_name) {
 #' }
 get_mean_raw_reads_per_cell <- function(gbm) {
   if (length(gbm@summary) < 1) {
-    stop("Object does not contain a metrics summary")
+    stop("Object does not contain a metrics summary. This is likey because metrics_summary.csv was not specified when creating a gbm object.")
   }
-
 
   n_cells <- get_metric(gbm, CELL_COUNT_METRIC)
   tot_reads <- get_metric(gbm, TOTAL_READS_METRIC)
@@ -522,34 +296,43 @@ get_mean_mapped_reads_per_cell <- function(gbm) {
   return(raw_rpc * conf_mapped_frac * valid_bc_frac)
 }
 
-#' Load Cell Ranger secondary analysis results
+#' Extract the cell barcode sequence from one or more barcode strings
 #'
-#' @param pipestance_path Path to the output directory produced by Cell Ranger
-#' @return A list containing: \itemize{
-#' \item pca - pca projection
-#' \item tsne - tsne projection
-#' \item kmeans - kmeans results for various values of K
-#' }
-#' @export
-#' @examples
-#' \dontrun{
-#' analysis <- load_cellranger_analysis_results("/home/user/cellranger_output")
-#' # Plot t-SNE projection
-#' plot(analysis$tsne$TSNE.1, analysis$tsne$TSNE.2)
-#'
-#' # Color by kmeans with K=4
-#' plot(analysis$tsne$TSNE.1, analysis$tsne$TSNE.2, col=analysis$kmeans[["2_clusters"]]$Cluster)
-#' }
-load_cellranger_analysis_results <- function(pipestance_path) {
-  kmeans_dir <- file.path(pipestance_path, 'outs', 'analysis', 'kmeans')
-  kmeans_result_names <- dir(kmeans_dir)
-  kmeans_results <- lapply(kmeans_result_names, function(x) read.csv(file.path(kmeans_dir, x, 'clusters.csv')))
-  names(kmeans_results) <- kmeans_result_names
+#' @param barcode_str Formatted cell barcode sequence
+#' @return A cell barcode sequence string
+get_barcode_sequence <- function(barcode_str) {
+  do.call(rbind, strsplit(barcode_str, '-'))[,1]
+}
 
-  return(list(pca=read.csv(file.path(pipestance_path, 'outs', 'analysis', 'pca', 'projection.csv')),
-              tsne=read.csv(file.path(pipestance_path, 'outs', 'analysis', 'tsne', 'projection.csv')),
-              kmeans=kmeans_results
-  ))
+#' Extract the gem group from one or more barcode strings
+#'
+#' @param barcode_str Formatted cell barcode sequence
+#' @return A gem group integer
+get_gem_group <- function(barcode_str) {
+  as.integer(do.call(rbind, strsplit(barcode_str, '-'))[,2])
+}
+
+#' Compress a vector of sequences into 2-bit representation
+#'
+#' Compress a vector of sequences into integer64 objects containing
+#' a 2-bit representation. Ns are not allowed
+#' @param seqs Vector of nucleotide sequences to compress
+#' @return A vector of integer64 objects
+compress_sequences <- function(seqs) {
+  if (any(grepl('[^ACGT]', seqs))) {
+    stop("At least one sequence contains Ns")
+  }
+  nuc_to_int <- as.integer(0:3)
+  names(nuc_to_int) <- c('A', 'C', 'G', 'T')
+
+  chars <- do.call(rbind, strsplit(seqs, ''))
+  nuc_ints <- matrix(nuc_to_int[chars], nrow=length(seqs))
+  result <- integer64(length(seqs))
+  for(i in 1:ncol(nuc_ints)) {
+    result <- result * as.integer(4) + nuc_ints[,i]
+  }
+
+  result
 }
 
 #' Write cluster-specific genes to file
@@ -586,90 +369,38 @@ write_cluster_specific_genes <- function(gene_clusters, gene_folder_path, n_gene
   return(all_genes)
 }
 
-#' Download a sample and relevant information from software.10xgenomics.com
+#' Get the read count matrix
 #'
-#' @param sample_name A name of the sample to be downloaded
-#' @param sample_dir Directory where the data is saved
-#' @param host The prefix of the url where the data is downloaded from
-#' @param lite If TRUE, then molecule_info will not be downloaded
-#' @return None The sample_dir can be used to create a gbm object
+#' @param gbm A GeneBCMatrix object
+#' @return A dgTMatrix with the same dimension as exprs(gbm)
 #' @export
 #' @examples
 #' \dontrun{
-#'  download_sample('pbmc3k','/mnt/home/jason/public_html/Download','https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/')
+#'  get_read_count_mtx(gbm1)
 #'  }
-download_sample <- function(sample_name, sample_dir, host, lite=TRUE) {
-  # create sample directory and outs directory
-  dir.create(sample_dir,showWarnings = FALSE)
-  header <- paste(host,sample_name,"/",sample_name,"_",sep="")
+get_read_count_mtx <- function(gbm) {
+  if (length(gbm@molecule_info) < 1) {
+    stop("Molecule info not loaded. Please use load_molecule_info() before constructing read count matrix")
+  }
+  original_bc_seqs <- get_barcode_sequence(colnames(exprs(gbm)))
+  original_bc_gem_groups <- get_gem_group(colnames(exprs(gbm)))
+  compressed_original_bc_seqs <- compress_sequences(original_bc_seqs)
+  original_bc_keys <- format_barcode_string(as.character(compressed_original_bc_seqs),original_bc_gem_groups)
 
-  # create outs directory
-  outs_dir <- file.path(sample_dir,"outs")
-  if (!is.na(file.info(outs_dir)$isdir)) {
-    if (file.info(outs_dir)$isdir) {
-      unlink(outs_dir, recursive = TRUE)
-    }
-  }
-  dir.create(outs_dir,showWarnings = FALSE)
-  if (is.na(file.info(outs_dir)$isdir)) {
-    stop(paste('Failed to create outs directory in ',sample_dir))
-  }
+  bc_molecule_info <- copy(gbm@molecule_info)
+  cat("Sorting...\n")
+  setkey(bc_molecule_info, barcode, gene)
+  bc_molecule_info[,bc_key := format_barcode_string(as.character(barcode), as.integer(gem_group))]
 
-  # download csv file
-  # e.g., "https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc3k/pbmc3k_metrics_summary.csv"
-  summary_csv_file <- paste(header,"metrics_summary.csv",sep="")
-  download.file(summary_csv_file,destfile=file.path(outs_dir,"metrics_summary.csv"))
-  if (!file.exists(file.path(outs_dir,"metrics_summary.csv"))) {
-    stop(paste('Failed to download metrics_summary.csv. to ',outs_dir))
-  }
+  cat("Counting genes...\n")
+  bc_gene_counts <- bc_molecule_info[bc_key %in% original_bc_keys, j=list(count=sum(as.integer(reads))), by=c('bc_key', 'gene')]
 
-  # download gene barcode matrix
-  # e.g., "https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz"
-  filtered_gene_bc_matrices_folder <- paste(header,"filtered_gene_bc_matrices.tar.gz",sep="")
-  download.file(filtered_gene_bc_matrices_folder,
-                destfile=file.path(outs_dir,"filtered_gene_bc_matrices.tar.gz"))
-  if (!file.exists(file.path(outs_dir,"filtered_gene_bc_matrices.tar.gz"))) {
-    stop(paste('Failed to download filtered_gene_bc_matrices.tar.gz to ',outs_dir))
-  }
-  untar(file.path(outs_dir,"filtered_gene_bc_matrices.tar.gz"), exdir = outs_dir, verbose=TRUE)
-  if (!is.na(file.info(file.path(outs_dir,"filtered_matrices_mex"))$isdir)) { # handle folder name for new version
-    # change folder name to filtered_gene_bc_matrices
-    if (file.info(file.path(outs_dir,"filtered_matrices_mex"))$isdir) {
-      file.rename(file.path(outs_dir,"filtered_matrices_mex"), file.path(outs_dir,"filtered_gene_bc_matrices"))
-    }
-  }
-  if (is.na(file.info(file.path(outs_dir,"filtered_gene_bc_matrices"))$isdir)) {
-    stop(paste('Failed to untar filtered_gene_bc_matrices.tar.gz in ',outs_dir))
-  }
-
-  # download cluster analysis file
-  # e.g., "https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc3k/pbmc3k_analysis.tar.gz"
-  analysis_folder <- paste(header,"analysis.tar.gz",sep="")
-  download.file(analysis_folder,destfile=file.path(outs_dir,"analysis.tar.gz"))
-  if (!file.exists(file.path(outs_dir,"analysis.tar.gz"))) {
-    stop(paste('Failed to download analysis.tar.gz. in ',outs_dir))
-  }
-  untar(file.path(outs_dir,"analysis.tar.gz"), exdir = outs_dir, verbose=TRUE)
-  if (!is.na(file.info(file.path(outs_dir,"analysis_csv"))$isdir)) { # handle folder name for new version
-    if (file.info(file.path(outs_dir,"analysis_csv"))$isdir) {
-      file.rename(file.path(outs_dir,"analysis_csv"), file.path(outs_dir,"analysis"))
-    }
-  }
-
-  if (is.na(file.info(file.path(outs_dir,"analysis"))$isdir)) {
-    stop(paste('Failed to untar analysis.tar.gz. in ',outs_dir))
-  }
-
-  if (!lite) {
-    # download molecule information (optional if no sample merging is required) *warning* this is slow!
-    # e.g., "https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc3k/pbmc3k_molecule_info.h5"
-    molecule_info <- paste(header,"molecule_info.h5",sep="")
-    download.file(molecule_info,destfile=file.path(outs_dir,"molecule_info.h5"),quiet = TRUE)
-    if (!file.exists(file.path(outs_dir,"molecule_info.h5"))) {
-      stop(paste('Failed to download molecule_info.h5 to ',outs_dir))
-    }
-  } else {
-    warning("molecule_info.h5 was not downloaded because 'lite=TRUE'. Note option 'lite=FALSE' is necessary if you want to merge gbms.")
-  }
-  return(cat('Downloaded data sucessfully to',sample_dir,'\n'))
+  cat("Building matrix...\n")
+  new_matrix <- with(bc_gene_counts, sparseMatrix(i = 1 + gene,
+                                                  j = match(bc_key, original_bc_keys), #  <- ensures the new columns match the original columns
+                                                  x = count,
+                                                  dims=dim(exprs(gbm))))
+  return(new_matrix)
 }
+
+

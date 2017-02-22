@@ -5,14 +5,22 @@
 \title{Visualize class labels under a 2D projection}
 \usage{
 visualize_clusters(cluster_result, projection, colour = NULL, alpha = 1,
-  marker_size = 0.1, title = NULL)
+  marker_size = 0.1, title = NULL, legend_anno = NULL)
 }
 \arguments{
 \item{cluster_result}{A vector or matrix of class labels for each cell (row)}
 
 \item{projection}{A two column matrix projection of each cell}
 
-\item{colour}{Customized colors for each class label}
+\item{colour}{(Optional) Customized colors for each class label}
+
+\item{alpha}{(Optional) Transparancy parameter for ggplot}
+
+\item{marker_size}{(Optional) Marker size for ggplot}
+
+\item{title}{(Optional) Title for ggplot}
+
+\item{legend_anno}{(Optional) Array of characters for legend annotation}
 }
 \value{
 A ggplot object with facets corresponding to each gene symbol

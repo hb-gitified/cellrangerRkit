@@ -1,0 +1,226 @@
+% \VignetteIndexEntry{Cell Ranger R Kit Tutorial: Secondary Analysis on 10x Single Cell 3' RNA-seq PBMC Data}
+% \VignetteEngine{knitr::knitr}
+% \VignetteDepends{}
+% \VignettePackage{cellrangerrkit}
+
+%
+% Copyright (c) 2016 10x Genomics, Inc. All rights reserved.
+%
+
+\documentclass[10pt,oneside]{article}
+
+\newcommand{\tm}{\textsuperscript{\tiny	{TM}}~}
+\newcommand{\weblink}[1]{\newline \newline {\color{Violet}{\texttt{~ #1}}} \newline \newline}
+
+% \newcommand{\weblink}[1]{ {\color{Violet}\verb!#1! }}
+% \newcommand{\weblink}[1]{\begin{verbatim}#1\end{verbatim}}
+% \newcommand{\weblink}[1]{{\color{Violet}\begin{verbatim}#1\end{verbatim}}}
+
+\newcommand{\thetitle}{Cell Ranger\textsuperscript{\footnotesize {TM}} R Kit Tutorial: Secondary Analysis on \\ 10x Genomics\textsuperscript{\footnotesize	{TM}} Single Cell 3' RNA-seq PBMC Data}
+
+
+\usepackage{whbiocvignette}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{fancyhdr}
+
+% Turn on the style
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+
+
+\title{\textsf{\textbf{\thetitle}}}
+\author{10x Genomics\tm}
+
+\usepackage{Sweave}
+\begin{document}
+\input{cellrangerrkit-PBMC-vignette-concordance}
+
+\maketitle
+
+% \begin{abstract}
+% \end{abstract}
+
+\tableofcontents
+
+\begin{Schunk}
+\begin{Soutput}
+Loaded cellrangerRkit version 1.1.0
+Building cellrangerRkit vignette...
+Searching for genomes in: /mnt/home/jason/yard/example_data/pbmc_data_public/pbmc3k/outs/filtered_gene_bc_matrices 
+Using hg19 in folder: /mnt/home/jason/yard/example_data/pbmc_data_public/pbmc3k/outs/filtered_gene_bc_matrices/hg19 
+Loaded matrix information
+Loaded gene information
+Loaded barcode information
+Loaded summary information
+\end{Soutput}
+\end{Schunk}
+\vspace{0.5in}
+\section{Introduction}
+\subsection{Overview of this tutorial}
+This tutorial provides instructions on how to perform exploratory secondary analysis on single cell 3' RNA-seq data produced by the 10x Genomics\tm Chromium\tm Platform, and processed by the Cell Ranger\tm pipeline. We illustrate an example workflow using peripheral blood mononuclear cells (PBMCs) from a healthy donor, using two data sets: \verb!pbmc3k! and \verb!pbmc6k! (from the same donor) released by 10x Genomics\tm:
+{\color{Violet}
+\begin{verbatim}
+  http://support.10xgenomics.com/single-cell/datasets/pbmc3k
+  http://support.10xgenomics.com/single-cell/datasets/pbmc6k
+\end{verbatim}}
+\noindent
+In this tutorial, you will learn how to:
+\begin{itemize}
+\item
+Load processed data from the Cell Ranger\tm pipeline or public data provided by 10x Genomics\tm
+\item
+Perform unsupervised clustering for {\it de novo} cell-type discovery
+\item
+Visualize clustering of single cells and cluster-specific gene expression signatures
+\item
+Combine data from multiple experiments
+\end{itemize}
+\subsection{Additional resources}
+You can learn more about the Cell Ranger\tm pipeline here:
+\weblink{http://support.10xgenomics.com/single-cell/software/pipelines/latest/what-is-cell-ranger}
+A larger number of other publicly available single cell data sets released by 10x Genomics\tm are available here:
+\weblink{http://support.10xgenomics.com/single-cell/datasets}
+If you have any questions about the data and the analysis, please contact {\bf \verb!support@10xgenomics.com!}.
+
+\vspace{0.5in}
+
+\section{Getting Started}
+\subsection{Installing Cell Ranger R Kit}
+You can follow the instructions at the link below to install R Kit and its dependencies:
+\weblink{http://support.10xgenomics.com/single-cell/software/pipelines/latest/rkit}
+\subsection{Loading gene expression data for secondary analysis}
+The Chromium\tm Cell Ranger\tm pipeline produces processed gene-barcode matrices and primary results. By specifiying the pipeline output directory (or {\it pipestance path}), you can use the R kit to load these pipeline results into your local R environment. You can load the pipeline data by specifying a pipestance path in R as follows.
+\begin{Schunk}
+\begin{Sinput}
+> cellranger_pipestance_path <- "/path/to/your/pipeline/output/directory"
+> gbm <- load_cellranger_matrix(cellranger_pipestance_path)
+> analysis_results <- load_cellranger_analysis_results(cellranger_pipestance_path)
+\end{Sinput}
+\end{Schunk}
+\noindent
+Alternatively, you can download the publicly available data to a local path using the \verb!download_sample! function and treat this local path as your pipestance path.
+\begin{Schunk}
+\begin{Sinput}
+> pipestance_path <- "/path/to/your/local/directory/for/pbmc3k"
+> download_sample(sample_name="pbmc3k",sample_dir=pipestance_path,
++                 host="https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/")
+> gbm <- load_cellranger_matrix(pipestance_path)
+> analysis_results <- load_cellranger_analysis_results(pipestance_path)
+\end{Sinput}
+\end{Schunk}
+
+The variable \verb!gbm! is an object based on the Bioconductor ExpressionSet class that stores the barcode filtered gene expression matrix and metadata, such as gene symbols and barcode IDs corresponding to cells in the data set. The gene expression values, gene information and cell barcodes can be accessed using:
+\begin{Schunk}
+\begin{Sinput}
+> exprs(gbm) # expression matrix
+> fData(gbm) # data frame of genes
+> pData(gbm) # data frame of cell barcodes
+\end{Sinput}
+\end{Schunk}
+The variable \verb!analysis_results! contains pre-computed results for principle component analysis (PCA) dimensional reduction, t-SNE (t-Distributed Stochastic Neighbor Embedding) projection, and k-means clustering. Because each cell is represented by a high-dimensional gene expression profile, one way to visualize cell-to-cell similarity is by reducing the data set to a two dimensional representation. There are many dimension reduction methods available for 2-D visualization. Here we include implementations of two popular approaches, PCA and t-SNE, with pre-computed results stored in \verb!analysis_results!.
+
+For instance, you can access the t-SNE projection and plot the cells colored by UMI counts as follows.
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{Schunk}
+\begin{Sinput}
+> tsne_proj <- analysis_results$tsne
+> visualize_umi_counts(gbm,tsne_proj[c("TSNE.1","TSNE.2")],limits=c(3,4),marker_size=0.05)
+\end{Sinput}
+\end{Schunk}
+\caption{t-SNE projection where each cell is colored by log10 of UMI counts. Color scale represents log10 of UMI counts.}
+\label{fig:umi}
+\end{center}
+\end{figure}
+
+\vspace{0.3in}
+
+Each point in the scatter plot represents a cell in the coordinates specified by the two t-SNE components. The color of each point plotted by \verb!visualize_umi_counts! (Figure \ref{fig:umi}) indicates the total number of UMIs for each cell, and these count values are displayed in log10 scale.
+
+Cells with similar expression profile tend to appear closer in the 2-D space, so you may already see some structures in the data. However, to identify what the structures represent, you will need to rely on the gene signatures that each cell expresses to draw meaningful insights from the data. Instead of using raw UMI counts for downstream differential gene analysis, we recommend that you filter unexpressed genes, normalize the UMI counts for each barcode, and use the log-transformed gene-barcode matrix. After transformation, the gene-barcode matrix contains 16634 genes for 2700 cells.
+\begin{Schunk}
+\begin{Sinput}
+> use_genes <- get_nonzero_genes(gbm)
+> gbm_bcnorm <- normalize_barcode_sums_to_median(gbm[use_genes,])
+> gbm_log <- log_gene_bc_matrix(gbm_bcnorm,base=10)
+> print(dim(gbm_log))
+\end{Sinput}
+\begin{Soutput}
+[1] 16634  2700
+\end{Soutput}
+\end{Schunk}
+
+\vspace{0.5in}
+\section{Visualizing signatures of known gene markers}
+One way to identify different cell types is by expression of specific genes in cells. You can visualize expression values of a set of genes to identify cells where particular genes are up-regulated. Here, we show how to simultaneously plot the expression of 6 gene markers, one for each subplot using the \verb!visualize_gene_markers! function.
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{Schunk}
+\begin{Sinput}
+> genes <- c("CD79A","NKG7","CD3D","CST3","CD8A","PF4")
+> tsne_proj <- analysis_results$tsne
+> visualize_gene_markers(gbm_log,genes,tsne_proj[c("TSNE.1","TSNE.2")],limits=c(0,1.5))
+\end{Sinput}
+\end{Schunk}
+\caption{t-SNE projection where each cell is colored by normalized expression of the marker in the cell. Color scale represents the normalized expression of the marker. }
+\label{fig:markers}
+\end{center}
+\end{figure}
+
+\newpage
+Because the input matrix \verb!gbm_log! is already normalized and log10-transformed, the color indicates the UMI counts for each gene under log10 scale (Figure \ref{fig:markers}). The specific gene markers already reveal cell types such as B cells, T cells, and natural killer (NK) cells. As expected, the cell-type-specific markers we have chosen are mostly unique to cells that are close together in the 2-D t-SNE projection.
+
+\vspace{0.5in}
+\section{Unbiased analysis using clustering results}
+\subsection{Visualizing clustering results}
+For some data sets, {\it de novo} cell-type discovery may be desired as prior knowledge of relevant marker genes can be limited or one may not want to introduce biases. In these cases it is useful to use unsupervised analysis to first algorithmically specify groupings of cells using the full data set. This can be achieved by applying any clustering methods on the loaded gene expression matrix \verb!exprs(gbm)! or the matrix in a reduced dimension space. In our implementation, for instance, we apply k-means clustering on the top 10 principle components of the gene expression matrix (after log-transformation, centering and scaling).
+
+Because k-means clustering requires a specified number of clusters in the data set but the number of clusters in a data set may not be known {\it a priori}, it is helpful to consider multiple values of $k$. The output data from Cell Ranger\tm includes the pre-computed cluster labels sweeping $k$ from 2 to 10. So you can quickly visualize results for different values of $k$ and pick the one that agrees with your intuition (Figure \ref{fig:kmeans}). Here each cell is colored by its cluster ID.
+\newpage
+\begin{figure}[htbp]
+\begin{center}
+\begin{Schunk}
+\begin{Sinput}
+> n_clu <- 2:10
+> km_res <- analysis_results$kmeans # load pre-computed kmeans results
+> clu_res <- sapply(n_clu, function(x) km_res[[paste(x,"clusters",sep="_")]]$Cluster)
+> colnames(clu_res) <- sapply(n_clu, function(x) paste("kmeans",x,sep="."))
+> visualize_clusters(clu_res,tsne_proj[c("TSNE.1","TSNE.2")])
+\end{Sinput}
+\end{Schunk}
+\caption{t-SNE projection where each cell is colored by cluster assigned by kmeans clustering. ID on the right represents the cluster ID.}
+\label{fig:kmeans}
+\end{center}
+\end{figure}
+
+\subsection{Analyzing cluster specific genes}
+Using these integer cluster labels (or integer labels generated by any clustering algorithm), you can now perform differential gene analysis to identify gene markers that are specific to a particular cell population. For this example, we focus on the k-means clustering result above with 5 clusters (Figure \ref{fig:kmeans5}). Standard statistical tests can be applied to identify which genes are most differentially expressed across different cell types.
+\newpage
+\vspace{0.5in}
+\begin{figure}[htbp]
+\begin{center}
+\begin{Schunk}
+\begin{Sinput}
+> example_K <- 5    # number of clusters (use "Set3" for brewer.pal below if example_K > 8)
+> example_col <- rev(brewer.pal(example_K,"Set2")) # customize plotting colors
+> cluster_result <- analysis_results$kmeans[[paste(example_K,"clusters",sep="_")]]
+> visualize_clusters(cluster_result$Cluster,tsne_proj[c("TSNE.1","TSNE.2")],colour=example_col)
+\end{Sinput}
+\end{Schunk}
+\caption{t-SNE projection where each cell is colored by cluster assigned by kmeans clustering. ID on the right represents the cluster ID.}
+\label{fig:kmeans5}
+\end{center}
+\end{figure}
+You can compare the mean expression between a class of cells and the remaining ones, and then prioritize genes by how highly expressed they are in the class of interest. The function \verb!prioritize_top_genes! identifies markers that are up-regulated in particular clusters of cells. Note that there are many other ways to identify cluster-specific genes. The approach used here is quick when looking for cluster-specific genes among $\sim 20$k candidate genes.
+\begin{Schunk}
+\begin{Sinput}
+> # sort the cells by the cluster labels
+> cells_to_plot <- order_cell_by_clusters(gbm_log,cluster_result$Cluster)
+> # order the genes from most up-regulated to most down-regulated in each cluster
+> prioritized_genes <- prioritize_top_genes(gbm_log,cluster_result$Cluster,"mean_diff")

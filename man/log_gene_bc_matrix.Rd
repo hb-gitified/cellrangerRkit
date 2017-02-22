@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalize.r
 \name{log_gene_bc_matrix}
 \alias{log_gene_bc_matrix}
-\title{Take the element-wise log(1+count) of a gene-barcode matrix while maintaining sparsity}
+\title{Take the element-wise logarithm of a gene-barcode matrix while maintaining sparsity}
 \usage{
 log_gene_bc_matrix(gbm, base = 2)
 }
@@ -15,7 +15,7 @@ log_gene_bc_matrix(gbm, base = 2)
 A GeneBCMatrix with logged counts
 }
 \description{
-Take the element-wise log(1+count) of a gene-barcode matrix while maintaining sparsity
+Take the element-wise logarithm of a gene-barcode matrix while maintaining sparsity
 }
 \examples{
 gbm_log <- log_gene_bc_matrix(gbm1)

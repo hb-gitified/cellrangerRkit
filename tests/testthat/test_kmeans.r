@@ -1,7 +1,8 @@
 library(cellrangerRkit)
 context('kmeans')
 
-test_matrix = Matrix(matrix(rbinom(200*100, 10, 0.01), 200, 100))
+set.seed(0)
+test_matrix = Matrix(matrix(rbinom(200*100, 10, 0.1), 200, 100))
 
 grp1 <- 1:40
 grp2 <- 41:100

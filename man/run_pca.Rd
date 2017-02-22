@@ -4,17 +4,22 @@
 \alias{run_pca}
 \title{Analysis functions}
 \usage{
-run_pca(gbm, n_pcs = 10)
+run_pca(gbm, n_pcs = 10, logscale = FALSE, ...)
 }
 \arguments{
-\item{gbm}{a GeneBCMatrix to run PCA on}
+\item{gbm}{a GeneBCMatrix to run PCA on (must set logscale=TRUE if it is already log-transformed)}
 
-\item{n_pcs}{The number of principal components to compute}
+\item{n_pcs}{The number of principal components to compute (default: 10)}
+
+\item{logscale}{Logical if the input is log-scale or not (default: FALSE)}
 }
 \value{
 A list containing \itemize{
 \item "x" - The rotated data matrix where rows are barcodes and columns are PCs
+\item "sdev" - the standard deviations of the principal components (i.e., sqrt of eigvals of the covariance matrix)
 \item "rotation" - The loadings (eigenvectors) where each column is a PC
+\item "tot_var" - The total variation in the scaled and centered matrix (this is also the effective rank of the matrix)
+\item "var_pcs" - The proportion of variance explained by each principle comoponent
 \item "use_genes" - The list of gene indices that were used
 \item "normalized_mat" - The matrix that was used as input to the PCA
 }

@@ -18,7 +18,13 @@ sparse_pca(x, n_pcs, mu = NULL, s = NULL, center_scale = TRUE)
 \item{center_scale}{perform centering and scaling}
 }
 \value{
-a list containing the rotated matrix ('x') and the principal component vectors ('rotation')
+A list containing \itemize{
+\item "x" - The rotated data matrix where rows are barcodes and columns are PCs
+\item "sdev" - the standard deviations of the principal components (i.e., sqrt of eigvals of the covariance matrix)
+\item "rotation" - The loadings (eigenvectors) where each column is a PC
+\item "tot_var" - The total variation in the scaled and centered matrix (this is also the effective rank of the matrix)
+\item "var_pcs" - The proportion of variance explained by each principle comoponent
+}
 }
 \description{
 Run a fast PCA algorithm while maintaining sparsity

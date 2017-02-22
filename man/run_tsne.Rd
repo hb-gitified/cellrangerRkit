@@ -4,10 +4,12 @@
 \alias{run_tsne}
 \title{Project dimensionally reduced gene-barcode matrix into a visualizable space via t-SNE}
 \usage{
-run_tsne(pca, ...)
+run_tsne(pca_res, n_pcs = NULL, ...)
 }
 \arguments{
-\item{pca}{A PCA result from run_pca()}
+\item{pca_res}{A PCA result from run_pca()}
+
+\item{n_pcs}{The number of top pca components to use (default is to use all pcs)}
 
 \item{...}{parameters to pass to Rtsne}
 }

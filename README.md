@@ -65,18 +65,9 @@ test('path/to/working/copy')
 
 ### Building for distribution
 
-devtools::document()
-devtools::test()
-devtools::build()
-devtools::build_vignettes()
-
+make rkit && R CMD INSTALL . && make vignette
 
 ## Uninstalling
 ```R
 remove.packages('cellrangerRkit')
 ```
-
-## More reading
-* Some basics on making/installing packages:
-  http://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
-  * More details on philosophy and workflow: http://r-pkgs.had.co.nz/
