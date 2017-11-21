@@ -19,4 +19,3 @@ nrow for GeneBCMatrix objects
 \examples{
 gene_count = nrow(gbm1)
 }
-

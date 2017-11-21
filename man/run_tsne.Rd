@@ -26,4 +26,3 @@ tsne_res <- run_tsne(pca)
 plot(tsne_res$Y[,1], tsne_res$Y[,2])
 }
 }
-

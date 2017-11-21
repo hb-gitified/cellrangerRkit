@@ -24,4 +24,3 @@ Tabulate the proportion of each cell type in respective classes
  cell_composition(clu)
 }
 }
-

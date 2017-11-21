@@ -21,4 +21,3 @@ Generate an array of up to 13 colors from custmoized color palette
 get_custom_col(13)
 
 }
-

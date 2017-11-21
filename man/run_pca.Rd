@@ -32,4 +32,3 @@ pca <- run_pca(gbm1, n_pcs=2)
 plot(PC2 ~ PC1, pca$x)
 
 }
-

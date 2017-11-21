@@ -23,4 +23,3 @@ Load gene-barcode matrix from a specific H5 file
 gene_bc_matrix <- get_matrix_from_h5("/home/user/cellranger_output/outs/filtered_gene_bc_matrices_h5.h5", "hg19")
 }
 }
-

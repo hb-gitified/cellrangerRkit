@@ -32,4 +32,3 @@ gbm_pheatmap(gbm,genes_to_plot,cells_to_plot)
 }
 
 }
-

@@ -2,8 +2,8 @@
 % Please edit documentation in R/constants.r
 \docType{data}
 \name{constants}
-\alias{CELL_COUNT_METRIC}
 \alias{constants}
+\alias{CELL_COUNT_METRIC}
 \title{Constants}
 \format{An object of class \code{character} of length 1.}
 \usage{
@@ -16,4 +16,3 @@ none
 global constants
 }
 \keyword{datasets}
-

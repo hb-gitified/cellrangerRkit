@@ -10,6 +10,7 @@
 \contentsline {subsection}{\numberline {4.2}Analyzing cluster specific genes}{5}{subsection.4.2}
 \contentsline {section}{\numberline {5}Analyzing multiple data sets}{7}{section.5}
 \contentsline {subsection}{\numberline {5.1}Merging multiple pbmc data sets}{7}{subsection.5.1}
-\contentsline {subsection}{\numberline {5.2}Re-running PCA, t-SNE and k-means clustering}{8}{subsection.5.2}
-\contentsline {section}{\numberline {6}Subsetting the matrix by cell or gene}{9}{section.6}
-\contentsline {section}{\numberline {7}Session Info}{9}{section.7}
+\contentsline {subsection}{\numberline {5.2}Re-running PCA, t-SNE and k-means clustering using R}{8}{subsection.5.2}
+\contentsline {section}{\numberline {6}Subsetting the matrix and reanalyzing}{9}{section.6}
+\contentsline {subsection}{\numberline {6.1}Re-running PCA, t-SNE and clustering using "cellranger reanalyze"}{9}{subsection.6.1}
+\contentsline {section}{\numberline {7}Session Info}{10}{section.7}

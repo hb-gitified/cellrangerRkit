@@ -35,4 +35,3 @@ pca <- sparse_pca(x, n_pcs=10)
 plot(pca$x[,1], pca$x[,2], xlab='PC1', ylab='PC2')
 }
 }
-

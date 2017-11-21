@@ -15,4 +15,3 @@ result from operator
 \description{
 Delegate a unary operator to the matrix slot
 }
-

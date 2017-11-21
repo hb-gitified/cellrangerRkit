@@ -15,4 +15,3 @@ A gem group integer
 \description{
 Extract the gem group from one or more barcode strings
 }
-

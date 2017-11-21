@@ -19,4 +19,3 @@ Concatenate gene-barcode matrices
 big_gbm <- concatenate_gene_bc_matrices(list(gbm1, gbm2))
 
 }
-

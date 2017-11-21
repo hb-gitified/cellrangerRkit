@@ -21,4 +21,3 @@ Truncate a GeneBCMatrix according to an array of gene symbols
 gbm_trunc <- trunc_gbm_by_genes(gbm1,c('CD79A','NKG7'))
 
 }
-

@@ -13,7 +13,7 @@ load_analysis_results_from_path(analysis_path)
 A list containing: \itemize{
 \item pca - pca projection
 \item tsne - tsne projection
-\item kmeans - kmeans results for various values of K
+\item clustering - clustering results for various clustering methods
 }
 }
 \description{
@@ -24,4 +24,3 @@ Load Cell Ranger secondary analysis results from a specified analysis folder
 analysis <- load_analysis_results_from_path("/home/user/cellranger_output/outs/analysis")
 }
 }
-

@@ -19,4 +19,3 @@ sseq_differential_expression(x, cond0, cond1, sseq_params, gene_ids,
 \description{
 Compute differential expression using the sSeq method
 }
-

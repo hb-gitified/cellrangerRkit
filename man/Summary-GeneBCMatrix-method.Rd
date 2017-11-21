@@ -16,4 +16,3 @@ result from operator
 \description{
 Summary operator for GeneBCMatrix
 }
-

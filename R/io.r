@@ -311,6 +311,25 @@ get_pca_path <- function(analysis_path) {
   return('')
 }
 
+#' Load Cell Ranger clustering results from a specified analysis folder
+#'
+#' @param analysis_path Path to the analysis output directory produced by Cell Ranger
+#' @return Path to clustering results
+#' @examples
+#' \dontrun{
+#' pca_path <- get_pca_path(analysis_path)
+#' }
+get_clustering_path <- function(analysis_path) {
+  # Prior to Cell Ranger 1.3.0
+  clustering_dir <- file.path(analysis_path, 'kmeans')
+  if (directory.exists(clustering_dir)) {
+    return(clustering_dir)
+  }
+
+  # Cell Ranger 1.3.0+
+  return(file.path(analysis_path, 'clustering'))
+}
+
 #' Load Cell Ranger t-SNE results from a specified analysis folder
 #'
 #' @param analysis_path Path to the analysis output directory produced by Cell Ranger
@@ -342,7 +361,7 @@ get_tsne_path <- function(analysis_path) {
 #' @return A list containing: \itemize{
 #' \item pca - pca projection
 #' \item tsne - tsne projection
-#' \item kmeans - kmeans results for various values of K
+#' \item clustering - clustering results for various clustering methods
 #' }
 #' @export
 #' @examples
@@ -350,34 +369,41 @@ get_tsne_path <- function(analysis_path) {
 #' analysis <- load_analysis_results_from_path("/home/user/cellranger_output/outs/analysis")
 #' }
 load_analysis_results_from_path <- function(analysis_path) {
-  kmeans_dir <- file.path(analysis_path, 'kmeans')
+  clustering_dir <- get_clustering_path(analysis_path)
   pca_dir <- get_pca_path(analysis_path)
-  tsne_dir <-get_tsne_path(analysis_path)
+  tsne_dir <- get_tsne_path(analysis_path)
 
-  if (directory.exists(kmeans_dir)) {
-    kmeans_result_names <- dir(kmeans_dir)
-    kmeans_results <- lapply(kmeans_result_names, function(x) read.csv(file.path(kmeans_dir, x, 'clusters.csv')))
-    names(kmeans_results) <- kmeans_result_names
+  if (directory.exists(clustering_dir)) {
+    if (basename(clustering_dir) == 'kmeans') {
+      # Pre CR-1.3.0 there was just one clustering type called "kmeans."
+      # Append the string "kmeans_" to the clusterings to harmonize them with CR-1.3.0+
+      clustering_paths <- dir(clustering_dir)
+      clustering_names <- paste0('kmeans_', clustering_paths)
+    } else {
+      clustering_names <- clustering_paths <- dir(clustering_dir)
+    }
+    clustering <- lapply(clustering_paths, function(x) read.csv(file.path(clustering_dir, x, 'clusters.csv')))
+    names(clustering) <- clustering_names
   } else {
-    kmeans_results = NULL
-    warning("Kmeans results not found in ",kmeans_dir)
+    clustering <- NULL
+    warning("Clustering results not found in ", clustering_dir)
   }
 
   if (directory.exists(pca_dir)) {
     pca_results <- read.csv(file.path(pca_dir, 'projection.csv'))
   } else {
     pca_results <- NULL
-    warning("PCA results not found in ",pca_dir)
+    warning("PCA results not found in ", pca_dir)
   }
 
   if (directory.exists(tsne_dir)) {
     tsne_results <- read.csv(file.path(tsne_dir, 'projection.csv'))
   } else {
     tsne_results <- NULL
-    warning("tSNE results not found in ",tsne_dir)
+    warning("tSNE results not found in ", tsne_dir)
   }
 
-  return(list(pca=pca_results, tsne=tsne_results, kmeans=kmeans_results))
+  return(list(pca=pca_results, tsne=tsne_results, clustering=clustering))
 }
 
 #' Load molecule info h5 file from the Cell Ranger pipeline
@@ -398,6 +424,7 @@ load_molecule_info <- function(gbm) {
   } else {
     f_path <- file.path(gbm@pipestance_path, "outs", "molecule_info.h5")
     if (!file.exists(f_path)) {
+      warning(sprintf("Could not find %s. Checking for 1.2.0 aggr file raw_molecule_info.h5", f_path))
       # Cell Ranger v1.2.0 `aggr` output
       f_path <- file.path(gbm@pipestance_path, "outs", "raw_molecule_info.h5")
     }
@@ -487,6 +514,7 @@ download_sample <- function(sample_name, sample_dir, host, lite=TRUE, barcode_un
   header <- paste(host,sample_name,"/",sample_name,"_",sep="")
 
   # create sample directory
+  sample_dir <- path.expand(sample_dir)
   dir.create(sample_dir,showWarnings = FALSE)
   # create outs directory
   outs_dir <- file.path(sample_dir,"outs")
@@ -549,3 +577,50 @@ download_sample <- function(sample_name, sample_dir, host, lite=TRUE, barcode_un
   return(cat('[DONE] Successfully downloaded all data to:',sample_dir,'\n'))
 }
 
+#' Save a single-genome GeneBCMatrix as an h5 file for input into `cellranger reanalyze`
+#'
+#' @param gbm GeneBCMatrix to write
+#' @param out_filename The HDF5 filename to write to
+#' @param genome_name The original genome name (e.g., GRCh38)
+#' @param template Path to the original matrix.h5 file.
+#' @param overwrite Overwrite the HDF5 file if it exists
+#' @export
+#' @import Matrix
+#' @import rhdf5
+#' @examples
+#' \dontrun{
+#' # Save a gbm as a matrix HDF5 file
+#' save_cellranger_matrix_h5(gbm, "new_matrix.h5", "GRCh38")
+#' }
+save_cellranger_matrix_h5 <- function(gbm, out_filename, genome_name, template=NULL, overwrite=FALSE) {
+  H5close()
+  mat <- as(exprs(gbm), "dgCMatrix")
+
+  if (file.exists(out_filename) && overwrite) {
+    unlink(out_filename)
+  } else if (file.exists(out_filename)) {
+    cat(sprintf("Output file %s already exists; provide overwrite=TRUE to overwrite it.\n", out_filename))
+    return()
+  }
+
+  h5createFile(out_filename)
+  root <- H5Fopen(out_filename, flags= "H5F_ACC_RDWR")
+  if (!is.null(template)) {
+    library_ids <- h5readAttributes(template, '/')$library_ids
+    ggs <- h5readAttributes(template, '/')$original_gem_groups
+    h5writeAttribute(library_ids, root, 'library_ids')
+    h5writeAttribute(ggs, root, 'original_gem_groups')
+  }
+  H5Fclose(root)
+  h5createGroup(out_filename, genome_name)
+
+  suppressWarnings({
+    h5write(as.integer(mat@x), out_filename, sprintf('%s/data', genome_name))
+    h5write(mat@i, out_filename, sprintf('%s/indices', genome_name))
+    h5write(mat@p, out_filename, sprintf('%s/indptr', genome_name))
+    h5write(c(nrow(mat), ncol(mat)), out_filename, sprintf('%s/shape', genome_name))
+    h5write(as.character(fData(gbm)$id), out_filename, sprintf('%s/genes', genome_name))
+    h5write(as.character(fData(gbm)$symbol), out_filename, sprintf('%s/gene_names', genome_name))
+    h5write(as.character(pData(gbm)$barcode), out_filename, sprintf('%s/barcodes', genome_name))
+  })
+}

@@ -17,4 +17,3 @@ A character vector of the genomes found
 \description{
 Get list of genomes in Cell Ranger output
 }
-

@@ -28,4 +28,3 @@ visualize_gene_markers(gbm,c('gene1','gene2'),tsne_proj)
 }
 
 }
-

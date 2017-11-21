@@ -29,4 +29,3 @@ km_res <- run_kmeans_clustering(pca, k=5)
 \seealso{
 kmeans
 }
-

@@ -23,4 +23,3 @@ an array of genes sorted by the mean differential expression between testID and 
 \description{
 Get ordered gene list by the sSeq differential expression method
 }
-

@@ -24,4 +24,3 @@ plot_barcode_counts(gbm1)
 }
 
 }
-

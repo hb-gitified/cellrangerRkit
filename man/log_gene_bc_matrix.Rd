@@ -21,4 +21,3 @@ Take the element-wise logarithm of a gene-barcode matrix while maintaining spars
 gbm_log <- log_gene_bc_matrix(gbm1)
 
 }
-

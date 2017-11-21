@@ -19,4 +19,3 @@ Get the non-zero gene indices from a GeneBCMatrix
 non_zero_gene_ids <- get_nonzero_genes(gbm1)
 
 }
-

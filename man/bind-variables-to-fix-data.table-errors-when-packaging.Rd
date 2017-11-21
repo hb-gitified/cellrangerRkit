@@ -2,10 +2,10 @@
 % Please edit documentation in R/io.r, R/util.r
 \name{bind variables to fix data.table errors when packaging}
 \alias{bind variables to fix data.table errors when packaging}
+\alias{bind variables to fix data.table errors when packaging}
 \title{Input/Output functions}
 \description{
 Input/Output functions
 
 Utility functions
 }
-

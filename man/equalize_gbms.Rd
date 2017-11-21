@@ -20,4 +20,3 @@ Equalize a list of gbms by subsampling
 equalize_gbms(list(gbm1,gbm2))
 }
 }
-

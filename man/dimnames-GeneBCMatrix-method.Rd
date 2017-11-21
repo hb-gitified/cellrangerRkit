@@ -20,4 +20,3 @@ dimnames for GeneBCMatrix objects
 gene_ids = dimnames(gbm1)[1]
 cell_barcodes = dimnames(gbm1)[2]
 }
-

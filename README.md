@@ -57,11 +57,15 @@ and install it into your main package set.
 
 We are using the testthat package for unit testing. All tests live in
 `inst/tests/`. The directory `tests/` simply contains a stub to test all things
-that live in `inst/tests/`. Using devtools you can call all tests by running:
+that live in `inst/tests/`.
 
+To run all tests, in Rstudio go to: Build.. Test Package
+
+Using devtools you can call all tests by running:
 ```R
 test('path/to/working/copy')
 ```
+
 
 ### Building for distribution
 

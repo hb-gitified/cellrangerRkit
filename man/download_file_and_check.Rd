@@ -15,4 +15,3 @@ loc_name Local file path where the file is stored
 \description{
 Download file to local and check if it exists
 }
-

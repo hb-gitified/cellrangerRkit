@@ -17,4 +17,3 @@ A formatted barcode string
 \description{
 Format a barcode string
 }
-

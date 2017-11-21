@@ -27,4 +27,3 @@ Write cluster-specific genes to file
  write_cluster_specific_genes(genes_to_plot,GENE_RES_FOLDER, n_genes=10,output_type='ensembl')
  }
 }
-

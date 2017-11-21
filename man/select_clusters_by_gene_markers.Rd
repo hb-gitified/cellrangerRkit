@@ -24,4 +24,3 @@ Select cells by clusters according to the fraction of cells that express at leas
 \examples{
 select_cells_by_clusterID(rep(1:5,4),c(1,3,4))
 }
-

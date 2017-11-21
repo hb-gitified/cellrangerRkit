@@ -23,4 +23,3 @@ gbm1 = load_molecule_info(gbm1, f_path)
 # Note molecule info stored as gbm1@molecule_info
 }
 }
-

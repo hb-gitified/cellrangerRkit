@@ -9,4 +9,3 @@ check_irlba()
 \description{
 Check for a broken version of irlba
 }
-

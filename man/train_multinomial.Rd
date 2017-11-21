@@ -18,4 +18,3 @@ Train a multinomial distribution from a vector
 \examples{
 train_multinomial(1:10)
 }
-

@@ -25,4 +25,3 @@ Compute the correlation score with a bulk population profile
  get_correletion_scores(gbm, bulk_profile$avg_expr, bulk_profile$genes$id)
 }
 }
-

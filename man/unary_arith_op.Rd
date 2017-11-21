@@ -17,4 +17,3 @@ result from operator
 \description{
 Delegate a unary arithmetic operator to the matrix slot
 }
-

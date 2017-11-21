@@ -19,4 +19,3 @@ Normalize barcodes by sum to the median barcode by sum
 gbm_norm_by_bc <- normalize_barcode_sums_to_median(gbm1)
 
 }
-

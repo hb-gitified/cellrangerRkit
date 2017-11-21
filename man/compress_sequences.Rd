@@ -16,4 +16,3 @@ A vector of integer64 objects
 Compress a vector of sequences into integer64 objects containing
 a 2-bit representation. Ns are not allowed
 }
-

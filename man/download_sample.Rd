@@ -29,4 +29,3 @@ NOTE: This pipestance format is for v1.1 and earlier
  download_sample('pbmc3k','/home/Downloads','https://s3-us-west-2.amazonaws.com/10x.files/samples/cell/')
  }
 }
-

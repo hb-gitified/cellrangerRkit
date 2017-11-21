@@ -20,4 +20,3 @@ Get the read count matrix
  get_read_count_mtx(gbm1)
  }
 }
-

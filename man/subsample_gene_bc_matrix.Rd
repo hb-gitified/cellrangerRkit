@@ -32,4 +32,3 @@ gbm1 = load_molecule_info(gbm1)
 gbm1_subsampled = subsample_gene_bc_matrix(gbm1, 10000)
 }
 }
-

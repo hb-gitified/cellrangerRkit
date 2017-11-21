@@ -26,4 +26,3 @@ Load data from the 10x Genomics Cell Ranger pipeline
 gene_bc_matrix <- load_cellranger_matrix("/home/user/cellranger_output")
 }
 }
-

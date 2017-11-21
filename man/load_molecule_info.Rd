@@ -21,4 +21,3 @@ gbm1 = load_molecule_info(gbm1)
 # Note molecule info stored as gbm1@molecule_info
 }
 }
-

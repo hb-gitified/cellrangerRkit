@@ -17,4 +17,3 @@ The indices from a gene index
 \description{
 Get a gene index from a valid gene symbol
 }
-

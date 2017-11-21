@@ -22,4 +22,3 @@ nb_exact_test(x_a, x_b, s_a, s_b, mu, phi)
 \description{
 Negative binomial exact test as in sSeq
 }
-

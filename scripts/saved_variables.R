@@ -22,7 +22,7 @@ if (PIPESTANCE_BASE_PATH == '') {
   stop('Please set the RKIT_VIGNETTE_PIPESTANCE_BASE_PATH environment variable. (to, e.g., /path/to/rkit_vignette_data/pipestances)')
 }
 if (CACHE_PATH == '') {
-  stop('Please set the VIGNETTE_CACHE_PATH environment variable. (to, e.g., /path/to/rkit_vignette_data). The output of this script goes there.')
+  stop('Please set the RKIT_VIGNETTE_CACHE_PATH environment variable. (to, e.g., /path/to/rkit_vignette_data). The output of this script goes there.')
 }
 
 if (!file.exists(CACHE_PATH)) {

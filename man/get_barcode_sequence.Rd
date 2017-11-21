@@ -15,4 +15,3 @@ A cell barcode sequence string
 \description{
 Extract the cell barcode sequence from one or more barcode strings
 }
-

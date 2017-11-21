@@ -14,4 +14,3 @@ compute_sseq_params(x, zeta_quantile = 0.995)
 \description{
 Compute sSeq parameters
 }
-

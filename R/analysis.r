@@ -140,11 +140,23 @@ sparse_pca <- function(x, n_pcs, mu=NULL, s=NULL, center_scale=TRUE) {
   if (is.null(mu) && center_scale) mu <- colMeans(x)
   if (is.null(s) && center_scale) s <- apply(x, 2, sd, na.rm=TRUE)
 
+  # irlba version 2.1.+ is borked, but 'fastpath=FALSE' is a workaround.
+  # Older versions of irlba don't need the workaround, but don't have the arg.
+  irlba_wrapper <- function(...) {
+    # Fails if irlba version is pre-fastpath
+    res <- try(irlba::irlba(fastpath=FALSE, ...), silent=T)
+    if (inherits(res, 'try-error')) {
+      # Pre-fastpath, so don't bother with option
+      res <- irlba::irlba(...)
+    }
+    res
+  }
+
   if (center_scale) {
     s[s == 0] <- min(s[s > 0])
-    svd_res <- irlba::irlba(x, n_pcs, center=mu, scale=s)
+    svd_res <- irlba_wrapper(x, n_pcs, center=mu, scale=s)
   } else {
-    svd_res <- irlba::irlba(x, n_pcs)
+    svd_res <- irlba_wrapper(x, n_pcs)
   }
 
   # compute explained variance

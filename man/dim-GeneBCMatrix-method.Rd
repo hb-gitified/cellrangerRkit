@@ -20,4 +20,3 @@ dim for GeneBCMatrix objects
 gene_count = dim(gbm1)[1]
 cell_barcode_count = dim(gbm1)[2]
 }
-

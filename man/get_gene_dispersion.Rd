@@ -29,4 +29,3 @@ Compute the normalized dispersion for each gene
  get_gene_dispersion(gbm1)
 }
 }
-

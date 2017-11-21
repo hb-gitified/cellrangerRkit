@@ -18,4 +18,3 @@ result from operator
 \description{
 Unary negation of GeneBCMatrix objects
 }
-

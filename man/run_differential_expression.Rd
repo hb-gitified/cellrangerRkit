@@ -26,4 +26,3 @@ top_results <- de_result \%>\% filter(p_adj < 0.05) \%>\% arrange(desc(log2fc))
 head(top_results)
 }
 }
-

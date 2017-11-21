@@ -31,4 +31,3 @@ phenoData = pData(gbm1)
 new_gbm = newGeneBCMatrix(matrix, fd=featureData, pd=phenoData, template=gbm1)
 }
 }
-

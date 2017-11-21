@@ -15,4 +15,3 @@ none. data documentation.
 Data contains peripheral blood mononuclear cells (PBMCs) from human individual 2.
 }
 \keyword{datasets}
-

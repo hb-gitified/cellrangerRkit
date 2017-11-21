@@ -1,15 +1,16 @@
-\BOOKMARK [1][]{section.1}{1 Introduction}{}
-\BOOKMARK [2][]{subsection.1.1}{1.1 Overview of this tutorial}{section.1}
-\BOOKMARK [2][]{subsection.1.2}{1.2 Additional resources}{section.1}
-\BOOKMARK [1][]{section.2}{2 Getting Started}{}
-\BOOKMARK [2][]{subsection.2.1}{2.1 Installing Cell Ranger R Kit}{section.2}
-\BOOKMARK [2][]{subsection.2.2}{2.2 Loading gene expression data for secondary analysis}{section.2}
-\BOOKMARK [1][]{section.3}{3 Visualizing signatures of known gene markers}{}
-\BOOKMARK [1][]{section.4}{4 Unbiased analysis using clustering results}{}
-\BOOKMARK [2][]{subsection.4.1}{4.1 Visualizing clustering results}{section.4}
-\BOOKMARK [2][]{subsection.4.2}{4.2 Analyzing cluster specific genes}{section.4}
-\BOOKMARK [1][]{section.5}{5 Analyzing multiple data sets}{}
-\BOOKMARK [2][]{subsection.5.1}{5.1 Merging multiple pbmc data sets}{section.5}
-\BOOKMARK [2][]{subsection.5.2}{5.2 Re-running PCA, t-SNE and k-means clustering}{section.5}
-\BOOKMARK [1][]{section.6}{6 Subsetting the matrix by cell or gene}{}
-\BOOKMARK [1][]{section.7}{7 Session Info}{}
+\BOOKMARK [1][]{section.1}{1 Introduction}{}% 1
+\BOOKMARK [2][]{subsection.1.1}{1.1 Overview of this tutorial}{section.1}% 2
+\BOOKMARK [2][]{subsection.1.2}{1.2 Additional resources}{section.1}% 3
+\BOOKMARK [1][]{section.2}{2 Getting Started}{}% 4
+\BOOKMARK [2][]{subsection.2.1}{2.1 Installing Cell Ranger R Kit}{section.2}% 5
+\BOOKMARK [2][]{subsection.2.2}{2.2 Loading gene expression data for secondary analysis}{section.2}% 6
+\BOOKMARK [1][]{section.3}{3 Visualizing signatures of known gene markers}{}% 7
+\BOOKMARK [1][]{section.4}{4 Unbiased analysis using clustering results}{}% 8
+\BOOKMARK [2][]{subsection.4.1}{4.1 Visualizing clustering results}{section.4}% 9
+\BOOKMARK [2][]{subsection.4.2}{4.2 Analyzing cluster specific genes}{section.4}% 10
+\BOOKMARK [1][]{section.5}{5 Analyzing multiple data sets}{}% 11
+\BOOKMARK [2][]{subsection.5.1}{5.1 Merging multiple pbmc data sets}{section.5}% 12
+\BOOKMARK [2][]{subsection.5.2}{5.2 Re-running PCA, t-SNE and k-means clustering using R}{section.5}% 13
+\BOOKMARK [1][]{section.6}{6 Subsetting the matrix and reanalyzing}{}% 14
+\BOOKMARK [2][]{subsection.6.1}{6.1 Re-running PCA, t-SNE and clustering using "cellranger reanalyze"}{section.6}% 15
+\BOOKMARK [1][]{section.7}{7 Session Info}{}% 16

@@ -25,4 +25,3 @@ visualize_umi_counts(gbm,tsne_proj)
 }
 
 }
-

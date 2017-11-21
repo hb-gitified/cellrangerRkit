@@ -21,4 +21,3 @@ Generate a pheatmap that shows the correlation between pairs of rows in an input
 plot_population_corr(gbm,genes_to_plot,cells_to_plot)
 
 }
-

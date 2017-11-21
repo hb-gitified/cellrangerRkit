@@ -20,4 +20,3 @@ Get mean mapped reads per cell
 mapped_rpc <- get_mean_mapped_reads_per_cell(gbm)
 }
 }
-

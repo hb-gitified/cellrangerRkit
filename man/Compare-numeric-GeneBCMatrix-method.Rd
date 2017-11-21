@@ -18,4 +18,3 @@ result from operator
 \description{
 Compare operator for GeneBCMatrix
 }
-

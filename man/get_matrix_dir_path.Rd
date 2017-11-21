@@ -17,4 +17,3 @@ The path to the matrices directory
 \description{
 Get path to matrices in Cell Ranger output
 }
-

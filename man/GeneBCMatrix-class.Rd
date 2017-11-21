@@ -2,8 +2,8 @@
 % Please edit documentation in R/class_gene_bc_matrix.r
 \docType{class}
 \name{GeneBCMatrix-class}
-\alias{GeneBCMatrix}
 \alias{GeneBCMatrix-class}
+\alias{GeneBCMatrix}
 \title{GeneBCMatrix class}
 \description{
 An S4 class to represent a matrix containing cell-barcoded gene counts

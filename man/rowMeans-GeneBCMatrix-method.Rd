@@ -23,4 +23,3 @@ rowMeans for GeneBCMatrix objects
 \examples{
 average_umis_per_gene = rowMeans(gbm1)
 }
-

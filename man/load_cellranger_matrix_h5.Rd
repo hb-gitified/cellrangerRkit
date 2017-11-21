@@ -26,4 +26,3 @@ Load HDF5 data from the 10x Genomics Cell Ranger pipeline
 gene_bc_matrix <- load_cellranger_matrix_h5("/home/user/cellranger_output")
 }
 }
-

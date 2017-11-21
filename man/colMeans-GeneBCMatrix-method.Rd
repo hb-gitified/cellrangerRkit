@@ -23,4 +23,3 @@ colMeans for GeneBCMatrix objects
 \examples{
 average_umis_per_cell = colMeans(gbm1)
 }
-

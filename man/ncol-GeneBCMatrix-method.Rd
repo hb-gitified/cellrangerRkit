@@ -19,4 +19,3 @@ ncol for GeneBCMatrix objects
 \examples{
 cell_barcode_count = ncol(gbm1)
 }
-

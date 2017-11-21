@@ -20,4 +20,3 @@ Select cells according to cluster IDs
 \examples{
 select_cells_by_clusterID(rep(1:5,4),c(1,3,4))
 }
-

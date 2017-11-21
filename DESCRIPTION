@@ -1,6 +1,6 @@
 Package: cellrangerRkit
 Title: Analysis Tools for 10x Genomics Chromium Single-Cell RNA-seq
-Version: 1.1.0
+Version: 2.0.0
 Author: 10x Genomics <software@10xgenomics.com>
 Maintainer: 10x Genomics <software@10xgenomics.com>
 Description: Provides tools for exploring the data output of 10x Genomics'
@@ -18,5 +18,6 @@ Suggests: testthat, knitr
 Collate: 'analysis.r' 'class_gene_bc_matrix.r' 'constants.r' 'data.r'
         'help.r' 'io.r' 'normalize.r' 'plot.r' 'util.r'
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
-Packaged: 2016-11-22 01:59:51 UTC; paulr
+RoxygenNote: 6.0.1
+NeedsCompilation: yes
+Packaged: 2017-07-24 16:30:34 UTC; paulr

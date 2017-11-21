@@ -17,4 +17,3 @@ numeric metric value
 \description{
 Get a metric from the metric summary
 }
-

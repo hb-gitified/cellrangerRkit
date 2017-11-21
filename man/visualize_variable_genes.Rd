@@ -23,4 +23,3 @@ Visualize variable genes
 plot_population_corr(gbm,genes_to_plot,cells_to_plot)
 
 }
-

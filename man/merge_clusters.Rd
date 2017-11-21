@@ -25,4 +25,3 @@ Merge clusters among cluster assignments
 \examples{
 merge_clusters_test(rep(1:5,4),c(1,3,4))
 }
-

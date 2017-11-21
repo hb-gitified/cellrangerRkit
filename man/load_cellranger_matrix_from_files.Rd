@@ -27,4 +27,3 @@ Load data from the 10x Genomics Cell Ranger pipeline by specifying individual fi
 gbm <- load_cellranger_matrix_from_files("matrix.mtx","genes.tsv","barcodes.tsv")
 }
 }
-

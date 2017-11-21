@@ -17,4 +17,3 @@ Logical TRUE if exists and FALSE otherwise
 \description{
 Check if a directory exists
 }
-

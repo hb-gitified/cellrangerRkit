@@ -34,4 +34,3 @@ visualize_clusters(cluster_result,tsne_proj)
 }
 
 }
-

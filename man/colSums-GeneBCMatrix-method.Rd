@@ -23,4 +23,3 @@ colSums for GeneBCMatrix objects
 \examples{
 umi_counts_per_cell = colSums(gbm1)
 }
-

@@ -60,7 +60,7 @@ in secondary analysis of their data.
 \item{\code{\link{concatenate_gene_bc_matrices}}}
 }
 }
+
 \author{
 10x Genomics <software@10xgenomics.com>
 }
-

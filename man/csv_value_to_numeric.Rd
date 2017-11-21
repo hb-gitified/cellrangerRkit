@@ -15,4 +15,3 @@ Numeric version of string
 \description{
 Read value from metrics CSV
 }
-

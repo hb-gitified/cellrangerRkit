@@ -34,4 +34,3 @@ Prioritize genes that are most significant markers for each cluster
  prioritize_top_genes(gbm, cluster_labels, 'sseq')
 }
 }
-

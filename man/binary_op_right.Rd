@@ -17,4 +17,3 @@ result from operator
 \description{
 Delegate a binary operator to the matrix slot
 }
-

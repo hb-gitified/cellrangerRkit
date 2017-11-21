@@ -23,4 +23,3 @@ rowSums for GeneBCMatrix objects
 \examples{
 umi_counts_per_gene = rowSums(gbm1)
 }
-
