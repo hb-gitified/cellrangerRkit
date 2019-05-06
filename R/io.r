@@ -139,7 +139,7 @@ load_cellranger_matrix_from_files <- function(mat_fn, gene_fn, barcode_fn, summa
 
   # Load the summary csv file (Optional)
   if (is.null(summary_fn)) {
-    warning("No summary file provided. Some funcions may be disabled without the metrics in summary csv.\n")
+    warning("No summary file provided. Some functions may be disabled without the metrics in summary csv.\n")
   } else {
     if (file.exists(summary_fn)) {
       summary <- read.csv(summary_fn, as.is=TRUE, header=TRUE)
